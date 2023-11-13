@@ -43,7 +43,66 @@ function index(req, res) {
     });
 }
 
+function show(req, res) {
+  
+  const post = findOrFail(req, res);
+
+  res.json(post);
+}
+
+
+function create(req, res) {
+  res.format({
+    html: () => {
+      html = "<h1>Crea Nuovo Post</h1>"
+      res.send(html);
+    },
+    default: () => {
+      res.status(406).send("Not Acceptable");
+    }
+  })
+
+}
+
+
+function download(req, res) {
+  const post = findOrFail(req, res);
+
+  const imagePath = path.resolve(__dirname, '..', 'public', 'imgs', 'posts', post.image);
+
+  fs.access(imagePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).send('Foto non trovata');
+      return;
+    }
+  })
+
+  res.download(imagePath);
+
+}
+
+
+function findOrFail(req, res) {
+
+  const postsSlug = req.params.slug;
+
+  const post = posts.find((post) => post.slug == postsSlug);
+
+  if (!post) {
+    res.status(404).send(`Post ${postsSlug} non trovato`);
+    return; 
+  }
+
+  return post;
+}
+
+
+
 module.exports = {
   index,
+  show,
+  create,
+  download
+
 }
 

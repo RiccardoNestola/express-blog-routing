@@ -1,7 +1,7 @@
 /* Usando l’array dei post fornito con le relative immagini, creare un file di routing(routers / posts.js) che conterrà le rotte necessario per l’entità post.
   All’interno creare le seguenti rotte:
 -/ - index: ritornerà un html con una ul che stamperà la lista dei post
-  /: slug - show: tramite il parametro dinamico che rappresenta lo slug del post, ritornerà un json con i dati del post
+  - /: slug - show: tramite il parametro dinamico che rappresenta lo slug del post, ritornerà un json con i dati del post
     / create - create: ritornerà un semplice html con un h1 con scritto Creazione nuovo post e nel caso venga richiesta una risposta diversa da html lancerà un errore 406
       /: slug / download - download: dovrà far scaricare l’immagine del post rappresentato dallo slug.Attenzione, se lo slug contiene il simbolo / la rotta non funzionerà.C’è qualche strumento che ci permette di codificare lo slug ?
         Scrivere tutte le funzioni delle rotte nel controller dedicato
@@ -14,8 +14,8 @@ Rendere navigabili i post nella index, stampando un link per la show di ciascuno
 
 const express = require("express");
 const dotenv = require("dotenv");
-const postsController = require("./controllers/posts");
 const homeController = require("./controllers/home");
+const postsRouter = require("./routers/posts");
 
 dotenv.config();
 
@@ -30,7 +30,7 @@ app.get("/", homeController.index);
 app.get("/about", homeController.about);
 app.get("/contatti", homeController.contacts);
 
-app.get("/posts", postsController.index)
+app.use("/posts", postsRouter)
 
 // Avviamo il server
 app.listen(process.env.PORT || 3001, () => {
