@@ -54,8 +54,8 @@ function show(req, res) {
       let headContent = fs.readFileSync(path.resolve(__dirname, "../head.html"), "utf-8");
       htmlContent = htmlContent.replace("@head", headContent);
       /*      res.type("html").send(htmlContent); */
-      const imgLink = (`http://localhost:3000/imgs/posts/${post.image}`)
-      const downloadLink = (`http://localhost:3000/posts/${post.slug}/download`)
+      const imgLink = (`http://${req.headers.host}/imgs/posts/${post.image}`)
+      const downloadLink = (`http://${req.headers.host}/posts/${post.slug}/download`)
 
       let htmlOutput =
         `<div class="p-2">
