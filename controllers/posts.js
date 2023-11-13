@@ -1,53 +1,85 @@
-const posts  = require("../db/db");
+const posts = require("../db/db");
 const fs = require("fs");
 const path = require("path");
 
 
 
 function index(req, res) {
-    res.format({
-      'text/html': function () {
-        let htmlContent = fs.readFileSync(path.resolve(__dirname, "../pages/posts.html"), "utf-8");
-        let headContent = fs.readFileSync(path.resolve(__dirname, "../head.html"), "utf-8");
-        htmlContent = htmlContent.replace("@head", headContent);
-   /*      res.type("html").send(htmlContent); */
-        
-        let htmlOutput = posts.map(post => {
-          return `
+  res.format({
+    'text/html': function () {
+      let htmlContent = fs.readFileSync(path.resolve(__dirname, "../pages/posts.html"), "utf-8");
+      let headContent = fs.readFileSync(path.resolve(__dirname, "../head.html"), "utf-8");
+      htmlContent = htmlContent.replace("@head", headContent);
+      /*      res.type("html").send(htmlContent); */
+
+      let htmlOutput = posts.map(post => {
+        return `
                 
                   <div class="col-33">
                     <div class="card">
-                      <img class="img-res" src="/imgs/posts/${post.image}" alt="">
+                      <img class="img-res" src="/imgs/posts/${post.image}" alt="${post.title}">
                       <div class="p-2">
                         <h3>${post.title}</h3>
                         <p>${post.content}</p>
                         <p># ${post.tags.join(', ')}</p>
+                        <a href="/posts/${post.slug}" class="button">Leggi post</a>
                       </div>
                     </div>
                   </div>
 
               `;
-            }).join('');
+      }).join('');
 
-        htmlContent = htmlContent.replace("@posts", htmlOutput);
+      htmlContent = htmlContent.replace("@posts", htmlOutput);
 
-        res.send(htmlContent);
-        
-      },
-      'application/json': function () {
-        res.json(posts);
-      },
-      'default': function () {
-        res.status(406).send('Not Acceptable');
-      }
-    });
+      res.send(htmlContent);
+
+    },
+    'application/json': function () {
+      res.json(posts);
+    },
+    'default': function () {
+      res.status(406).send('Not Acceptable');
+    }
+  });
 }
 
 function show(req, res) {
-  
+
   const post = findOrFail(req, res);
 
-  res.json(post);
+  res.format({
+    'text/html': function () {
+      let htmlContent = fs.readFileSync(path.resolve(__dirname, "../pages/single.html"), "utf-8");
+      let headContent = fs.readFileSync(path.resolve(__dirname, "../head.html"), "utf-8");
+      htmlContent = htmlContent.replace("@head", headContent);
+      /*      res.type("html").send(htmlContent); */
+      const imgLink = (`http://localhost:3000/imgs/posts/${post.image}`)
+      const downloadLink = (`http://localhost:3000/posts/${post.slug}/download`)
+
+      let htmlOutput =
+        `<div class="p-2">
+          <img class="img-res" src="/imgs/posts/${post.image}" alt="${post.title}">
+          <h3>${post.title}</h3>
+          <p>${post.content}</p>
+          <p># ${post.tags.join(', ')}</p>
+          <a href="${imgLink}" class="button">Apri immagine</a>
+          <a href="${downloadLink}" class="button">Scarica immagine</a>
+        </div>`
+              
+
+      htmlContent = htmlContent.replace("@single", htmlOutput);
+
+      res.send(htmlContent);
+
+    },
+    'application/json': function () {
+      res.json(post);
+    },
+    'default': function () {
+      res.status(406).send('Not Acceptable');
+    }
+  });
 }
 
 
@@ -90,7 +122,7 @@ function findOrFail(req, res) {
 
   if (!post) {
     res.status(404).send(`Post ${postsSlug} non trovato`);
-    return; 
+    return;
   }
 
   return post;
